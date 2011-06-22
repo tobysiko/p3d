@@ -189,16 +189,20 @@ class Protein:
             ''' --*-- STRUCTURE --*-- '''
             match = mask.match(line)
             
-            if "HETSYN" in line:
-                # I had ValueError from 'self.idx = ...' in Atom.__init__.
-                # Offending lines contained: "HETSYN     NAG NAG"
-                # It works if HETSYN lines are ignored.
-                continue
+            
             
             #if match == None and line.startswith('ATOM'):
             #   print line
             if match != None:
                 ''' read into structure & hash will be done on the fly '''
+                
+                if line.startswith("HETSYN"):
+                    # I had ValueError from 'self.idx = ...' in Atom.__init__.
+                    # Offending lines contained: "HETSYN     NAG NAG"
+                    # It works if HETSYN lines are ignored.
+                    print "skipped line due to HETSYN"
+                    continue
+                
                 #
                 # ze Atom :
                 CurrentAtom = p3d.atom.Atom(line=None,protein=self,PositionInAtomslist=i,model=current_model,matchObject=match)
@@ -276,9 +280,9 @@ class Protein:
                         self.headers_infos[k].append(v)
                 self.leftOvers.append('{0: <76}\n'.format(line.strip()))
                 if line.startswith('ATOM'):
-                    print('The following atom was missed by the reg-ex.')
-                    print(line.strip())
-                    print('This branch is for debugging purpose ..., ')
+                    #print('The following atom was missed by the reg-ex.')
+                    #print(line.strip())
+                    #print('This branch is for debugging purpose ..., ')
 
                     k = """
                     (?P<type>[A,H][T,E].{4})            # ATOM or HETATOM
@@ -316,10 +320,11 @@ class Protein:
                     #if match == None and line.startswith('ATOM'):
                     #   print line
                     if match != None:
-                        print('adapted pattern matches line now ...')
+                        #print('adapted pattern matches line now ...')
+                        pass
                     else:
                         print('adapted pattern still misses line...')
-                    exit(1)
+                        sys.exit(1)
         self.chainTermini[self.atoms[-1].chain].append(self.atoms[-1].resid)
         return
 
